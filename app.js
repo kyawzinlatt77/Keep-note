@@ -1,75 +1,78 @@
 // global selectors
 const noteContainer = document.querySelector(".note-container");
-const categoriesContainer = document.querySelector(".categories-container");
+const categoryContainer = document.querySelector(".categories-container");
+
 const modal = document.querySelector("#modal");
 const form = document.querySelector("form");
 const titleInput = document.querySelector("#title");
 const toggleBtn = document.querySelector(".toggle-btn");
-const search = document.querySelector('#search');
-const categoriesInput = document.querySelector('.categories');
+const search = document.querySelector("#search");
+const categoriesInput = document.querySelector("#categories");
 // notes
 let notes = [];
 let filteredNotes = [];
 const categories = [
   {
     id: 1,
-    name: 'anime',
+    name: "coding",
   },
   {
     id: 2,
-    name: 'manga',
+    name: "personal",
   },
   {
     id: 3,
-    name: 'comis',
+    name: "idea",
   },
 ];
 
 function showAllCategories() {
   categories.forEach((category) => {
-     addCategoryToList(category);
+    addCategoryToList(category);
+    addCategoryToSidebar(category);
   });
 }
 
 function addCategoryToList(category) {
-  const optionEl = document.createElement('option');
-  optionEl.setAttribute('value', category.id);
+  const optionEl = document.createElement("option");
+  optionEl.setAttribute("value", category.id);
   optionEl.textContent = category.name;
   categoriesInput.appendChild(optionEl);
 }
-// default theme
 
-function addCategoryToSidebar() {
-  const liEl = document.createElement('li');
-  liEl.className.add('category-item');
-  liEl.innerHTML = <span class="" hidden>id</span>
-                    <span></span>
-
+function addCategoryToSidebar(category) {
+  const liEl = document.createElement("li");
+  liEl.classList.add("category-item");
+  liEl.innerHTML = `<span class="hidden-id" hidden>${category.id}</span>
+                    <span>${category.name}</span>`;
+  categoryContainer.appendChild(liEl);
 }
 
-search.addEventListener('keyup', filteredNote);
+search.addEventListener("keyup", filterNote);
 
-function filteredNote() {
-  const searchTerm = search.value.toLowerCase()
-  filteredNotes = notes.filter(note => {
-    return [note.title, note.body].join('').toLowerCase().incluces(searchTerm);
+function filterNote() {
+  const searchTerm = search.value.toLowerCase();
+
+  filteredNotes = notes.filter((note) => {
+    return [note.title, note.body].join("").toLowerCase().includes(searchTerm);
   });
-  console.log(filteredNotes);
-  noteContainer.innerHTML = ';'
-  filteredNotes.forEach((note,index) => {
+
+  noteContainer.innerHTML = "";
+  filteredNotes.forEach((note, index) => {
     addNotetoList(note, index);
-  })
+  });
 }
 
-function filteredNoteByCategory(id) {
-  let categoriizeNote = notes.filter(note => note.category === id);
-  console.log(categoriizeNote);
-  noteContainer.innerHTML = '';
-  categoriizeNote.forEach((note, index) => {
-    addNotetoList(note, infex);
-  })
+function filterNoteByCategory(id) {
+  let categorizedNote = notes.filter((note) => note.category === id);
+
+  noteContainer.innerHTML = "";
+  categorizedNote.forEach((note, index) => {
+    addNotetoList(note, index);
+  });
 }
 
+// default theme
 let theme = "light";
 function toggleTheme() {
   theme === "light" ? (theme = "dark") : (theme = "light");
@@ -87,6 +90,7 @@ function loadTheme() {
 
 toggleBtn.addEventListener("click", () => {
   const sound = document.querySelector(".toggle-sound");
+  sound.currentTime = 0;
   sound.play();
   toggleTheme();
   localStorage.setItem("keep.theme", theme);
@@ -94,9 +98,10 @@ toggleBtn.addEventListener("click", () => {
 
 // Class: for creating a  new  note
 class Note {
-  constructor(title, body) {
+  constructor(title, body, category) {
     this.title = title;
     this.body = body;
+    this.category = category;
     this.id = Math.floor(Math.random() * 2000);
   }
 }
@@ -121,14 +126,8 @@ function saveNotetoLocalStorage(note) {
 // Function: remove a note  from local storage
 function removeNote(id) {
   let notes = getNotes();
-  console.log(typeof id);
-  // notes = notes.filter((note) => note.id !== id);
-  notes.forEach((note, index) => {
-    if (note.id === id) {
-      notes.splice(index, 1);
-    }
-    localStorage.setItem("keep.notes", JSON.stringify(notes));
-  });
+  notes = notes.filter((note) => note.id !== id);
+  localStorage.setItem("keep.notes", JSON.stringify(notes));
 }
 
 // UI UPDATES
@@ -141,7 +140,6 @@ function addNotetoList(note, index = 1) {
   newUINote.innerHTML = `
         <span hidden>${note.id}</span>
         <h2 class="note__title">${note.title}</h2>
-        <span class="note__categories">${note.categories}</span>
         <p class="note__body">${note.body}</p>
         <div class="note__btns">
           <button class="note__btn note__view">
@@ -186,17 +184,20 @@ document.querySelector(".modal__btn").addEventListener("click", () => {
   modal.close();
 });
 
-// Event: Note Buttons
-categoryContainer.addEventListener('click', (event) => {
-  const currentiD = event.target.closest('.categor-itemy');
-  id = currentiD
-})
+// Event: sidebar category
+categoryContainer.addEventListener("click", (event) => {
+  const currentItem = event.target.closest(".category-item");
+  id = currentItem.querySelector(".hidden-id").textContent;
 
+  filterNoteByCategory(id);
+});
+
+// Event: Note Buttons
 noteContainer.addEventListener("click", (event) => {
   if (event.target.classList.contains("note__view")) {
     // trigger modal
     const currentNote = event.target.closest(".note");
-    console.log(currentNote);
+
     const title = currentNote.querySelector(".note__title").textContent;
     const body = currentNote.querySelector(".note__body").textContent;
     // open modal with data
@@ -208,7 +209,7 @@ noteContainer.addEventListener("click", (event) => {
     currentNote.remove();
     showAlertMessage("Note deleted successfully", "remove-message");
     const id = currentNote.querySelector("span").textContent;
-    console.log(id);
+
     removeNote(Number(id));
   }
 });
@@ -216,6 +217,7 @@ noteContainer.addEventListener("click", (event) => {
 // Event: Display All Notes at app start
 window.addEventListener("DOMContentLoaded", () => {
   showAllNotes();
+  showAllCategories();
   if (localStorage.getItem("keep.theme")) {
     theme = localStorage.getItem("keep.theme");
   }
@@ -227,9 +229,13 @@ form.addEventListener("submit", (event) => {
   event.preventDefault();
 
   const noteInput = document.querySelector("#note");
-  //   console.log(noteInput.value);
+
   if (noteInput.value.length > 0 && titleInput.value.length > 0) {
-    const newNote = new Note(titleInput.value, noteInput.value, categoriesInput.value);
+    const newNote = new Note(
+      titleInput.value,
+      noteInput.value,
+      categoriesInput.value
+    );
     // add note to list
     addNotetoList(newNote);
     // save to localStorage

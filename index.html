@@ -4,7 +4,11 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" href="images/icon.png" type="image/x-icon" />
+    <link
+      rel="shortcut icon"
+      href="images/google-keep.png"
+      type="image/x-icon"
+    />
     <link rel="stylesheet" href="src/styles.css" />
     <!-- font-awesome -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
@@ -22,10 +26,7 @@
   <body>
     <aside class="aside">
       <h1>Categories</h1>
-      <ul class="categories-container">
-        <li class="categories-item">anime</li>
-        <li class="categories-item">manga</li>
-      </ul>
+      <ul class="categories-container"></ul>
     </aside>
     <div class="container">
       <nav>
@@ -35,7 +36,7 @@
             id="search"
             autocomplete="off"
             spellcheck="false"
-            placeholder="Search notes..."
+            placeholder="Type to search notes..."
           />
         </label>
         <button class="toggle-btn"></button>
@@ -65,12 +66,10 @@
             placeholder="Take a note..."
           ></textarea>
 
-          <select name="categories" id="category">
-            <option value="1">anime</option>
-            <option value="2">manga</option>
-            <option value="3">comis</option>
+          <select name="categories" id="categories">
+            <!-- for prototype -->
+            <!-- <option value="1">test</option> -->
           </select>
-
 
           <button type="submit">Save</button>
         </form>
